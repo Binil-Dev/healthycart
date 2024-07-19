@@ -6,6 +6,7 @@ import 'package:healthycart/core/custom/lottie/loading_lottie.dart';
 import 'package:healthycart/core/services/easy_navigation.dart';
 import 'package:healthycart/features/authenthication/application/authenication_provider.dart';
 import 'package:healthycart/features/hospital_profile/application/profile_provider.dart';
+import 'package:healthycart/features/hospital_profile/presentation/bank_account_details_screen.dart';
 import 'package:healthycart/features/hospital_profile/presentation/payments_screen.dart';
 import 'package:healthycart/features/hospital_profile/presentation/widget/contact_us_sheet.dart';
 import 'package:healthycart/features/hospital_profile/presentation/widget/doctor_list_profile/doctor_list.dart';
@@ -65,6 +66,20 @@ class ProfileScreen extends StatelessWidget {
                   GestureDetector(
                     onTap: () {
                       EasyNavigation.push(
+                          context: context,
+                          page: const BankAccountDetailsScreen());
+                    },
+                    child: const ProfileMainContainer(
+                        text: 'Bank Account Details',
+                        sideChild: Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Icon(Icons.arrow_forward_ios),
+                        )),
+                  ),
+                  const Gap(4),
+                  GestureDetector(
+                    onTap: () {
+                      EasyNavigation.push(
                           context: context, page: const DoctorProfileList());
                     },
                     child: const ProfileMainContainer(
@@ -87,7 +102,7 @@ class ProfileScreen extends StatelessWidget {
                           child: Icon(Icons.arrow_forward_ios),
                         )),
                   ),
-                   const Gap(4),
+                  const Gap(4),
                   GestureDetector(
                     onTap: () {
                       showModalBottomSheet(
@@ -96,7 +111,10 @@ class ProfileScreen extends StatelessWidget {
                         elevation: 5,
                         showDragHandle: true,
                         context: context,
-                        builder: (context) =>  ContactUsBottomSheet(message:  'Hi, I am reaching out from ${authenticationProvider.hospitalDataFetched?.hospitalName}',),
+                        builder: (context) => ContactUsBottomSheet(
+                          message:
+                              'Hi, I am reaching out from ${authenticationProvider.hospitalDataFetched?.hospitalName}',
+                        ),
                       );
                     },
                     child: const ProfileMainContainer(
@@ -105,7 +123,7 @@ class ProfileScreen extends StatelessWidget {
                           padding: EdgeInsets.all(8.0),
                           child: Icon(Icons.call),
                         )),
-                  ),                  
+                  ),
                   const Gap(4),
                   GestureDetector(
                     onTap: () {

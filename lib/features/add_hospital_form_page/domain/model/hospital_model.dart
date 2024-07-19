@@ -25,6 +25,10 @@ class HospitalModel extends Admin {
     this.rejectionReason,
     this.ishospitalON,
     this.dayTransaction,
+    this.accountHolderName,
+    this.bankName,
+    this.ifscCode,
+    this.accountNumber,
   });
 
   final String? hospitalName;
@@ -42,6 +46,10 @@ class HospitalModel extends Admin {
   final String? fcmToken;
   final String? email;
   final String? dayTransaction;
+  String? accountHolderName;
+  String? bankName;
+  String? ifscCode;
+  String? accountNumber;
 
   @override
   Map<String, dynamic> toMap() {
@@ -99,6 +107,15 @@ class HospitalModel extends Admin {
     };
   }
 
+  Map<String, dynamic> toBankDetailsMap() {
+    return <String, dynamic>{
+      'accountHolderName': accountHolderName,
+      'bankName': bankName,
+      'ifscCode': ifscCode,
+      'accountNumber': accountNumber,
+    };
+  }
+
   factory HospitalModel.initial() {
     return HospitalModel();
   }
@@ -134,6 +151,13 @@ class HospitalModel extends Admin {
       keywords: map['keywords'] != null
           ? List<String>.from((map['keywords'] as List<dynamic>))
           : null,
+      accountHolderName: map['accountHolderName'] != null
+          ? map['accountHolderName'] as String
+          : null,
+      bankName: map['bankName'] != null ? map['bankName'] as String : null,
+      ifscCode: map['ifscCode'] != null ? map['ifscCode'] as String : null,
+      accountNumber:
+          map['accountNumber'] != null ? map['accountNumber'] as String : null,
     );
   }
 
@@ -157,6 +181,10 @@ class HospitalModel extends Admin {
     List<String>? keywords,
     String? rejectionReason,
     String? dayTransaction,
+    String? accountHolderName,
+    String? bankName,
+    String? ifscCode,
+    String? accountNumber,
   }) {
     return HospitalModel(
       id: id ?? super.id,
@@ -178,6 +206,10 @@ class HospitalModel extends Admin {
       keywords: keywords ?? this.keywords,
       rejectionReason: rejectionReason ?? this.rejectionReason,
       dayTransaction: dayTransaction ?? this.dayTransaction,
+      accountHolderName: accountHolderName ?? this.accountHolderName,
+      bankName: bankName ?? this.bankName,
+      ifscCode: ifscCode ?? this.ifscCode,
+      accountNumber: accountNumber ?? this.accountNumber,
     );
   }
 }

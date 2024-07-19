@@ -3,16 +3,21 @@ import 'dart:developer';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:healthycart/core/custom/toast/toast.dart';
+import 'package:healthycart/features/add_hospital_form_page/domain/model/hospital_model.dart';
+import 'package:healthycart/features/authenthication/application/authenication_provider.dart';
 import 'package:healthycart/features/hospital_doctor/domain/model/add_doctor_model.dart';
 import 'package:healthycart/features/hospital_profile/domain/i_profile_facade.dart';
 import 'package:healthycart/features/hospital_profile/domain/models/transaction_model.dart';
 import 'package:injectable/injectable.dart';
+import 'package:provider/provider.dart';
 
 @injectable
 class ProfileProvider extends ChangeNotifier {
   ProfileProvider(this.iProfileFacade);
   final IProfileFacade iProfileFacade;
   bool ishospitalON = false;
+
+  final bankFormKey = GlobalKey<FormState>();
 
   void hospitalStatus(bool status) {
     ishospitalON = status;
@@ -126,5 +131,47 @@ class ProfileProvider extends ChangeNotifier {
       canPopNow = true;
       notifyListeners();
     }
+  }
+
+  /* ---------------------------- ADD BANK DETAILS ---------------------------- */
+
+  final accountHolderNameController = TextEditingController();
+  final bankNameController = TextEditingController();
+  final accountNumberController = TextEditingController();
+  final ifscCodeController = TextEditingController();
+  Future<void> addBankDetails({required BuildContext context}) async {
+    HospitalModel hospitalModel = HospitalModel(
+        accountHolderName: accountHolderNameController.text,
+        bankName: bankNameController.text,
+        accountNumber: accountNumberController.text,
+        ifscCode: ifscCodeController.text);
+    final hospitalId =
+        context.read<AuthenticationProvider>().hospitalDataFetched!.id!;
+
+    final result = await iProfileFacade.addBankDetails(
+        bankDetails: hospitalModel, hospitalId: hospitalId);
+    result.fold((err) {
+      log('ERROR :: ${err.errMsg}');
+      CustomToast.errorToast(text: 'Bank details update failed');
+    }, (success) {
+      CustomToast.sucessToast(text: success);
+    });
+    notifyListeners();
+  }
+
+  void setBankEditData(HospitalModel editData) {
+    accountHolderNameController.text = editData.accountHolderName ?? '';
+    bankNameController.text = editData.bankName ?? '';
+    accountNumberController.text = editData.accountNumber ?? '';
+    ifscCodeController.text = editData.ifscCode ?? '';
+    notifyListeners();
+  }
+
+  void clearControllers() {
+    accountHolderNameController.clear();
+    bankNameController.clear();
+    accountNumberController.clear();
+    ifscCodeController.clear();
+    notifyListeners();
   }
 }

@@ -3,6 +3,7 @@ import 'package:dartz/dartz.dart';
 import 'package:healthycart/core/failures/main_failure.dart';
 import 'package:healthycart/core/general/firebase_collection.dart';
 import 'package:healthycart/core/general/typdef.dart';
+import 'package:healthycart/features/add_hospital_form_page/domain/model/hospital_model.dart';
 import 'package:healthycart/features/hospital_doctor/domain/model/add_doctor_model.dart';
 import 'package:healthycart/features/hospital_profile/domain/i_profile_facade.dart';
 import 'package:healthycart/features/hospital_profile/domain/models/transaction_model.dart';
@@ -150,5 +151,19 @@ class IProfileImpl implements IProfileFacade {
   void clearTransactionData() {
     transactionLastDoc = null;
     transactionNoMoreData = false;
+  }
+
+  @override
+  FutureResult<String> addBankDetails(
+      {required HospitalModel bankDetails, required String hospitalId}) async {
+    try {
+      await _firebaseFirestore
+          .collection(FirebaseCollections.hospitals)
+          .doc(hospitalId)
+          .update(bankDetails.toBankDetailsMap());
+      return right('Bank Details Updated Successfully');
+    } catch (e) {
+      return left(MainFailure.generalException(errMsg: e.toString()));
+    }
   }
 }
