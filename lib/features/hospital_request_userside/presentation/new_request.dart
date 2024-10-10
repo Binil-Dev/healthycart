@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:healthycart/core/custom/confirm_alertbox/confirm_alertbox_widget.dart';
+import 'package:healthycart/core/custom/custom_button_n_search/search_field_button.dart';
 import 'package:healthycart/core/custom/lottie/circular_loading.dart';
 import 'package:healthycart/core/custom/lottie/loading_lottie.dart';
 import 'package:healthycart/core/custom/no_data/no_data_widget.dart';
@@ -11,6 +12,7 @@ import 'package:healthycart/features/hospital_request_userside/application/provi
 import 'package:healthycart/features/hospital_request_userside/presentation/widgets/date_and_time_tab.dart';
 import 'package:healthycart/features/hospital_request_userside/presentation/widgets/date_time_picker.dart';
 import 'package:healthycart/features/hospital_request_userside/presentation/widgets/doctor_details_card.dart';
+import 'package:healthycart/features/hospital_request_userside/presentation/widgets/orderid_date_widget.dart';
 import 'package:healthycart/features/hospital_request_userside/presentation/widgets/patient_details_card.dart';
 import 'package:healthycart/features/hospital_request_userside/presentation/widgets/reject_popup.dart';
 import 'package:healthycart/utils/constants/colors/colors.dart';
@@ -79,41 +81,18 @@ class _NewRequestState extends State<NewRequest> {
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Container(
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(8),
-                                        color: BColors.darkblue),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Text(bookings.id!,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .labelMedium!
-                                              .copyWith(color: Colors.white)),
-                                    ),
-                                  ),
-                                  Container(
-                                    height: 28,
-                                    width: 128,
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(8),
-                                        border: Border.all(),
-                                        color: BColors.offWhite),
-                                    child: Center(
-                                      child: Text(
-                                        formattedDate,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .labelMedium,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
+                  //             SearchTextFieldButton(
+                  //   text: "Search Doctors",
+                  //   controller: doctorProvider.searchController,
+                  //   onChanged: (value) {
+                  //     EasyDebounce.debounce(
+                  //         'searchdoctors', const Duration(milliseconds: 500),
+                  //         () {
+                  //       doctorProvider.searchCategoryDoctors(value);
+                  //     });
+                  //   },
+                  // ),
+                           OrderIDAndDateSection(orderData: bookings, date: formattedDate),
                               const Gap(8),
                               DoctorRoundImageNameWidget(
                                 doctorImage:
@@ -143,7 +122,7 @@ class _NewRequestState extends State<NewRequest> {
                                           : bookings.newTimeSlot!,
                                       tabWidth: 152,
                                       gap: 10),
-                                  Gap(5),
+                                  const Gap(5),
                                   /* --------------------------- TIME SLOT SELECTION -------------------------- */
                                   Expanded(
                                     child: GestureDetector(
@@ -187,7 +166,7 @@ class _NewRequestState extends State<NewRequest> {
                                         maxLines: 2,
                                         overflow: TextOverflow.ellipsis,
                                         style: TextStyle(
-                                            fontSize: 12,
+                                            fontSize: 11,
                                             color: BColors.black,
                                             decoration:
                                                 TextDecoration.underline),
@@ -198,12 +177,26 @@ class _NewRequestState extends State<NewRequest> {
                               ),
                               const Gap(8),
                               /* ----------------------------- PATIENT DETAILS ---------------------------- */
+                              Text(
+                                'Patient Details',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelMedium!
+                                    .copyWith(fontWeight: FontWeight.w600),
+                              ),
+                              const Gap(4),
                               PatientDetailsContainer(
-                                patientName: bookings.patientName ?? 'Unknown User',
-                                patientGender: bookings.patientGender ??  'Unknown Gender',
-                                patientAge: bookings.patientAge ??  'Unknown Age',
-                                patientPlace: bookings.patientPlace ??  'Unknown Place',
-                                patientNumber: bookings.patientNumber??  'Unknown Number',
+                                uhid:  bookings.uhid ?? null,
+                                patientName:
+                                    bookings.patientName ?? 'Unknown User',
+                                patientGender:
+                                    bookings.patientGender ?? 'Unknown Gender',
+                                patientAge:
+                                    bookings.patientAge ?? 'Unknown Age',
+                                patientPlace:
+                                    bookings.patientPlace ?? 'Unknown Place',
+                                patientNumber:
+                                    bookings.patientNumber ?? 'Unknown Number',
                                 onCall: () {
                                   bookingProvider.lauchDialer(
                                       phoneNumber:
@@ -214,14 +207,12 @@ class _NewRequestState extends State<NewRequest> {
                               /* ------------------------------ USER DETAILS ------------------------------ */
                               Text(
                                 'Booked By :-',
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 2,
                                 style: Theme.of(context)
                                     .textTheme
-                                    .labelLarge!
+                                    .labelMedium!
                                     .copyWith(fontWeight: FontWeight.w600),
                               ),
-                              const Gap(8),
+                              const Gap(4),
                               Container(
                                   width: double.infinity,
                                   decoration: BoxDecoration(
@@ -237,18 +228,19 @@ class _NewRequestState extends State<NewRequest> {
                                           children: [
                                             Text(
                                               bookings.userDetails!.userName!,
-                                              style: TextStyle(
+                                              style: const TextStyle(
                                                   color: BColors.black,
                                                   fontSize: 12),
                                             ),
                                             const Gap(4),
                                             Text(
                                               bookings.userDetails!.phoneNo!,
-                                              style: TextStyle(fontSize: 12),
+                                              style:
+                                                  const TextStyle(fontSize: 12),
                                             ),
                                           ],
                                         ),
-                                        Gap(10),
+                                        const Gap(10),
                                         PhysicalModel(
                                             elevation: 2,
                                             color: Colors.white,

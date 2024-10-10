@@ -9,9 +9,7 @@ import 'package:healthycart/features/add_hospital_form_page/domain/model/hospita
 import 'package:healthycart/features/hospital_doctor/domain/i_doctor_facade.dart';
 import 'package:healthycart/features/hospital_doctor/domain/model/add_doctor_model.dart';
 import 'package:healthycart/features/hospital_doctor/domain/model/doctor_category_model.dart';
-import 'package:healthycart/features/location_picker/domain/model/location_model.dart';
 import 'package:injectable/injectable.dart';
-import 'package:provider/provider.dart';
 
 @injectable
 class DoctorProvider extends ChangeNotifier {

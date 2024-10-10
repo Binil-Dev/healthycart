@@ -32,7 +32,7 @@ class DoctorRoundImageNameWidget extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Dr $doctorName, $doctorQualification',
+                '$doctorName -$doctorQualification',
                 overflow: TextOverflow.ellipsis,
                 maxLines: 2,
                 style: Theme.of(context)

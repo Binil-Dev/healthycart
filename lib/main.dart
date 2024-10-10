@@ -21,6 +21,7 @@ Future<void> main() async {
   runApp( App(
     androidNotificationChannel: channel,
     flutterLocalNotificationsPlugin: flutterLocalNotificationsPlugin,
-  ));
+  ),
+  );
 }
  

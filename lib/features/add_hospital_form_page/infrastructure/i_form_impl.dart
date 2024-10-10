@@ -57,8 +57,7 @@ class IFormFieldImpl implements IFormFeildFacade {
   @override
   Future<Either<MainFailure, String>> saveImage(
       {required File imageFile}) async {
-    return await _imageService.saveImage(
-        imageFile: imageFile, folderName: 'hospital');
+    return await _imageService.saveImage(imageFile: imageFile, folderName: 'hospital');
   }
 
   @override

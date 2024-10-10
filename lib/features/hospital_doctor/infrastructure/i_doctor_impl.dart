@@ -70,8 +70,7 @@ class IDoctorImpl implements IDoctorFacade {
 
 //////////////// getting the list of hospital selected categories here
   @override
-  FutureResult<List<DoctorCategoryModel>> getHospitalDoctorCategory(
-      {required List<String> categoryIdList}) async {
+  FutureResult<List<DoctorCategoryModel>> getHospitalDoctorCategory({required List<String> categoryIdList}) async {
     try {
       List<Future<DocumentSnapshot<Map<String, dynamic>>>> futures = [];
 

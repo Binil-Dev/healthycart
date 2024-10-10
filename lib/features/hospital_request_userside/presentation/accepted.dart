@@ -11,6 +11,7 @@ import 'package:healthycart/features/authenthication/application/authenication_p
 import 'package:healthycart/features/hospital_request_userside/application/provider/hospital_booking_provider.dart.dart';
 import 'package:healthycart/features/hospital_request_userside/presentation/widgets/date_and_time_tab.dart';
 import 'package:healthycart/features/hospital_request_userside/presentation/widgets/doctor_details_card.dart';
+import 'package:healthycart/features/hospital_request_userside/presentation/widgets/orderid_date_widget.dart';
 import 'package:healthycart/features/hospital_request_userside/presentation/widgets/patient_details_card.dart';
 import 'package:healthycart/utils/constants/colors/colors.dart';
 import 'package:intl/intl.dart';
@@ -80,45 +81,7 @@ class _NewRequestState extends State<Accepted> {
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Container(
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(8),
-                                        color: BColors.darkblue),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Text(bookings.id!,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .labelMedium!
-                                              .copyWith(
-                                                  color: Colors.white,
-                                                  fontSize: 11)),
-                                    ),
-                                  ),
-                                  Container(
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(8),
-                                        border: Border.all(),
-                                        color: BColors.offWhite),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(5.0),
-                                      child: Center(
-                                        child: Text(
-                                          formattedDate,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .labelMedium!
-                                              .copyWith(fontSize: 11),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
+                               OrderIDAndDateSection(orderData: bookings, date: formattedDate),
                               const Gap(8),
                               DoctorRoundImageNameWidget(
                                 doctorImage:
@@ -147,8 +110,18 @@ class _NewRequestState extends State<Accepted> {
                                   tabWidth: 152,
                                   gap: 20),
                               const Gap(8),
+
                               /* ----------------------------- PATIENT DETAILS ---------------------------- */
+                                 Text(
+                                'Patient Details',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelMedium!
+                                    .copyWith(fontWeight: FontWeight.w600),
+                              ),
+                              const Gap(4),
                               PatientDetailsContainer(
+                                uhid: bookings.uhid ?? null,
                                 patientName: bookings.patientName!,
                                 patientGender: bookings.patientGender!,
                                 patientAge: bookings.patientAge!,

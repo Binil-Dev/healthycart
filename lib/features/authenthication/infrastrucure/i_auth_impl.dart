@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:developer';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -11,7 +10,7 @@ import 'package:healthycart/features/add_hospital_form_page/domain/model/hospita
 import 'package:healthycart/features/authenthication/domain/i_auth_facade.dart';
 import 'package:injectable/injectable.dart';
 
-@LazySingleton(as: IAuthFacade)
+@LazySingleton(as:IAuthFacade)
 class IAuthImpl implements IAuthFacade {
   IAuthImpl(this._firebaseAuth, this._firestore);
   final FirebaseAuth _firebaseAuth;
@@ -120,7 +119,9 @@ class IAuthImpl implements IAuthFacade {
           hospitalStreamController.add(
               right(HospitalModel.fromMap(doc.data() as Map<String, dynamic>)));
         }
-      });
+      },
+      );
+    
     } on FirebaseException catch (e) {
       hospitalStreamController
           .add(left(MainFailure.firebaseException(errMsg: e.code)));
