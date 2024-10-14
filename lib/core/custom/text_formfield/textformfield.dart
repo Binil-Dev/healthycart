@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:healthycart/utils/constants/colors/colors.dart';
 
 class TextfieldWidget extends StatelessWidget {
   const TextfieldWidget({
@@ -11,11 +10,13 @@ class TextfieldWidget extends StatelessWidget {
     this.maxlines,
     this.minlines,
     this.labelText,
-    required this.style,
+    this.style,
     this.hintText,
     this.textInputAction,
     this.onChanged,
     this.onSubmit,
+    this.prefixText,
+    this.suffixText
   });
   final TextEditingController? controller;
   final bool? readOnly;
@@ -24,8 +25,10 @@ class TextfieldWidget extends StatelessWidget {
   final int? maxlines;
   final int? minlines;
   final String? labelText;
+  final String? prefixText;
+  final String? suffixText;
   final String? hintText;
-  final TextStyle style;
+  final TextStyle? style;
   final TextInputAction? textInputAction;
   final void Function(String)? onChanged;
   final void Function(String)? onSubmit;
@@ -34,7 +37,6 @@ class TextfieldWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       child: TextFormField(
-  
         onChanged: onChanged,
         textInputAction: textInputAction,
         textCapitalization: TextCapitalization.sentences,
@@ -44,21 +46,39 @@ class TextfieldWidget extends StatelessWidget {
         keyboardType: keyboardType,
         controller: controller,
         readOnly: readOnly!,
-        cursorColor: BColors.black,
+        cursorColor: Colors.black,
         onFieldSubmitted: onSubmit,
         style: style,
         decoration: InputDecoration(
-          labelStyle:Theme.of(context).textTheme.labelMedium!.copyWith(fontWeight: FontWeight.w600),
-          hintStyle: Theme.of(context).textTheme.labelMedium!.copyWith(fontWeight: FontWeight.w600),
+                    suffixText: suffixText,
+          prefixText: prefixText,
+          suffixStyle: const TextStyle(
+            fontSize: 14,
+            color: Colors.black,
+            fontWeight: FontWeight.w500,
+          ),
+          prefixStyle: const TextStyle(
+            fontSize: 14,
+            color: Colors.black,
+            fontWeight: FontWeight.w500,
+          ),
+          labelStyle: Theme.of(context).textTheme.labelMedium,
+          hintStyle: Theme.of(context).textTheme.labelMedium,
           hintText: hintText,
           labelText: labelText,
           contentPadding: const EdgeInsets.all(16),
           filled: true,
-          fillColor: BColors.white,
+          fillColor: Colors.white,
           border: OutlineInputBorder(
             borderSide: BorderSide(
                 strokeAlign: BorderSide.strokeAlignOutside,
                 color: Colors.grey[300]!),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: const BorderSide(
+                strokeAlign: BorderSide.strokeAlignOutside,
+                color: Colors.black),
             borderRadius: BorderRadius.circular(16),
           ),
         ),
@@ -66,3 +86,4 @@ class TextfieldWidget extends StatelessWidget {
     );
   }
 }
+

@@ -151,11 +151,9 @@ class HospitalBookingModel {
       newBookingDate: map['newBookingDate'] != null
           ? map['newBookingDate'] as String
           : null,
-      newTimeSlot:
-          map['newTimeSlot'] != null ? map['newTimeSlot'] as String : null,
-                 commission: map['commission'] != null ? map['commission'] as num : null,
-      commissionAmt:
-          map['commissionAmt'] != null ? map['commissionAmt'] as num : null,  
+      newTimeSlot: map['newTimeSlot'] != null ? map['newTimeSlot'] as String : null,
+      commission: map['commission'] != null ? map['commission'] as num : null,
+      commissionAmt: map['commissionAmt'] != null ? map['commissionAmt'] as num : null,  
       uhid: map['uhid'] != null ? map['uhid'] as String : null,
       tokenNumber:  map['tokenNumber'] != null ? map['tokenNumber'] as int : null,         
     );

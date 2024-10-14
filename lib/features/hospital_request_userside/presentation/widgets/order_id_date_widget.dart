@@ -44,7 +44,6 @@ class OrderIDAndDateSection extends StatelessWidget {
         Container(
           height: 28,
           width: 128,
-
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
               border: Border.all(),

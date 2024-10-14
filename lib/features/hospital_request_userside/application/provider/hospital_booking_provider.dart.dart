@@ -18,12 +18,10 @@ class HospitalBookingProvider extends ChangeNotifier {
   HospitalBookingProvider(this.iBookingFacade);
   final IBookingFacade iBookingFacade;
   bool isLoading = false;
-
   TextEditingController dateController = TextEditingController();
   String? selectedTimeSlot1;
   String? selectedTimeSlot2;
   String? totalTime;
-
   void clearTimeSlotData() {
     selectedTimeSlot1 = null;
     selectedTimeSlot2 = null;
@@ -31,12 +29,19 @@ class HospitalBookingProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+
   /* ------------------------- GET NEW REQUEST STREAM ------------------------- */
+  final TextEditingController searchNewRequestController = TextEditingController();
   List<HospitalBookingModel> newRequestList = [];
-  void getNewRequestStream({required String hospitalId}) {
+  void getNewRequestStream({
+    required String hospitalId,
+    String? searchPhoneNumber,
+  }) {
     isLoading = true;
     notifyListeners();
-    iBookingFacade.getNewRequestStream(hospitalId: hospitalId).listen(
+    iBookingFacade
+        .getNewRequestStream(hospitalId: hospitalId, searchPhoneNumber: searchPhoneNumber)
+        .listen(
       (event) {
         event.fold(
           (err) {
@@ -56,12 +61,22 @@ class HospitalBookingProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+ Future<void> cancelNewRequestStream() async {
+    await iBookingFacade.cancelNewRequestStream();
+  }
   /* ------------------------- GET ACCEPTED REQUEST STREAM ------------------------- */
+   final TextEditingController searchAcceptedBookingsController = TextEditingController();
   List<HospitalBookingModel> acceptedList = [];
-  void getAcceptedBookingsStream({required String hospitalId}) {
+  void getAcceptedBookingsStream({
+    required String hospitalId,
+    String? searchPhoneNumber,
+  }) {
     isLoading = true;
     notifyListeners();
-    iBookingFacade.getAcceptedBookingsStream(hospitalId: hospitalId).listen(
+    iBookingFacade
+        .getAcceptedBookingsStream(
+            hospitalId: hospitalId, searchPhoneNumber: searchPhoneNumber)
+        .listen(
       (event) {
         event.fold(
           (err) {
@@ -80,6 +95,10 @@ class HospitalBookingProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+
+  Future<void> cancelAcceptedBookingsStream() async {
+    await iBookingFacade.cancelAcceptedBookingsStream();
+  }
   /* ------------------------------ SET TIME SLOT ----------------------------- */
   Future<void> setTimeSlot(
       {required String bookingId,
@@ -98,25 +117,29 @@ class HospitalBookingProvider extends ChangeNotifier {
   }
 
   /* --------------------------- UPDATE ORDER STATUS -------------------------- */
-  TextEditingController rejectionReasonCobtroller = TextEditingController();
+  final TextEditingController rejectionReasonCobtroller =
+      TextEditingController();
+  final TextEditingController tokenController = TextEditingController();
   final rejectionFormKey = GlobalKey<FormState>();
 
-  Future<void> updateOrderStatus(
-      {required String orderId,
-      required int orderStatus,
-      required String fcmtoken,
-      String? hospitalName,
-      String? hospitalId,
-      num? totalAmount,
-      num? commission,
-      num? commissionAmt,
-      String? dayTransactionDate,
-      String? paymentMode,
-      String? rejectReason}) async {
+  Future<void> updateOrderStatus({
+    required String orderId,
+    required int orderStatus,
+    required String fcmtoken,
+    String? hospitalName,
+    String? hospitalId,
+    num? totalAmount,
+    num? commission,
+    num? commissionAmt,
+    String? dayTransactionDate,
+    String? paymentMode,
+    String? rejectReason,
+  }) async {
     isLoading = true;
     notifyListeners();
     final networkTime = await getNetworkTime();
     final result = await iBookingFacade.updateOrderStatus(
+        tokenNumber: int.tryParse(tokenController.text),
         totalAmount: totalAmount,
         orderId: orderId,
         orderStatus: orderStatus,
@@ -132,12 +155,12 @@ class HospitalBookingProvider extends ChangeNotifier {
           totalAmount: totalAmount,
           offlinePayment: paymentMode != 'Online' ? totalAmount : 0,
           onlinePayment: paymentMode == 'Online' ? totalAmount : 0,
-        ));
+        ),);
     result.fold((err) {
       CustomToast.errorToast(text: err.errMsg);
       isLoading = false;
       notifyListeners();
-    }, (success) {
+    }, (success) async {
       if (orderStatus == 3) {
         sendFcmMessage(
             token: fcmtoken,
@@ -158,6 +181,7 @@ class HospitalBookingProvider extends ChangeNotifier {
             title: 'Appointment Completed!!');
       }
       CustomToast.sucessToast(text: success);
+      tokenController.clear();
       isLoading = false;
       notifyListeners();
     });
@@ -182,12 +206,15 @@ class HospitalBookingProvider extends ChangeNotifier {
 
   /* ------------------------- GET COMPLETED BOOKINGS ------------------------- */
   List<HospitalBookingModel> completedList = [];
-  Future<void> getCompletedOrders(
-      {required String hospitalId, required int limit}) async {
+  final TextEditingController searchCompletedBookingsController = TextEditingController();
+  Future<void> getCompletedOrders({
+    required String hospitalId,
+    String? searchPhoneNumber,
+  }) async {
     isLoading = true;
     notifyListeners();
     final result = await iBookingFacade.getCompletedBookings(
-        hospitalId: hospitalId, limit: limit);
+        hospitalId: hospitalId, searchPhoneNumber: searchPhoneNumber);
     result.fold((err) {
       log('error in getCompletedOrders() :: ${err.errMsg}');
     }, (success) {
@@ -204,14 +231,29 @@ class HospitalBookingProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void completeInit(
-      ScrollController scrollController, String hospitalId, int limit) {
+  void searchCompletedOrders({
+    required String hospitalId,
+    required String searchPhoneNumber,
+  }) {
+    completedList.clear();
+    iBookingFacade.clearDataCompleted();
+    getCompletedOrders(
+        hospitalId: hospitalId, searchPhoneNumber: searchPhoneNumber);
+    notifyListeners();
+  }
+
+  void completeInit({
+    required ScrollController scrollController,
+    required String hospitalId,
+    String? searchPhoneNumber,
+  }) {
     scrollController.addListener(
       () {
         if (scrollController.position.atEdge &&
             scrollController.position.pixels != 0 &&
             isLoading == false) {
-          getCompletedOrders(hospitalId: hospitalId, limit: limit);
+          getCompletedOrders(
+              hospitalId: hospitalId, searchPhoneNumber: searchPhoneNumber);
         }
       },
     );
@@ -220,11 +262,15 @@ class HospitalBookingProvider extends ChangeNotifier {
 
 /* -------------------------- GET REJECTED BOOKINGS ------------------------- */
   List<HospitalBookingModel> rejectedBookings = [];
-  Future<void> getRejectedOrders({required String hospitalId}) async {
+   final TextEditingController searchRejectedOrdersController = TextEditingController();
+  Future<void> getRejectedOrders({
+    required String hospitalId,
+    String? searchPhoneNumber,
+  }) async {
     isLoading = true;
     notifyListeners();
-    final result =
-        await iBookingFacade.getRejectedOrders(hospitalId: hospitalId);
+    final result = await iBookingFacade.getRejectedOrders(
+        hospitalId: hospitalId, searchPhoneNumber: searchPhoneNumber);
     result.fold(
       (err) {
         log('Error in getRejectedOrders() :: ${err.errMsg}');
@@ -245,13 +291,29 @@ class HospitalBookingProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void rejectInit(ScrollController scrollController, String hospitalId) {
+  void searchRejectedOrders({
+    required String hospitalId,
+    required String searchPhoneNumber,
+  }) {
+    rejectedBookings.clear();
+    iBookingFacade.clearDataRejected();
+    getRejectedOrders(
+        hospitalId: hospitalId, searchPhoneNumber: searchPhoneNumber);
+    notifyListeners();
+  }
+
+  void rejectInitt({
+    required ScrollController scrollController,
+    required String hospitalId,
+    String? searchPhoneNumber,
+  }) {
     scrollController.addListener(
       () {
         if (scrollController.position.atEdge &&
             scrollController.position.pixels != 0 &&
             isLoading == false) {
-          getRejectedOrders(hospitalId: hospitalId);
+          getRejectedOrders(
+              hospitalId: hospitalId, searchPhoneNumber: searchPhoneNumber);
         }
       },
     );

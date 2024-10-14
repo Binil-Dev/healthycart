@@ -27,12 +27,12 @@ class _UserPaymentState extends State<UserPayment> {
         provider
           ..cleatDataCompleted()
           ..getCompletedOrders(
-              hospitalId: authProvider.hospitalDataFetched!.id!, limit: 20)
+              hospitalId: authProvider.hospitalDataFetched!.id!,)
           ..getTransactionData(hospitalId: authProvider.hospitalDataFetched!.id!);
       },
     );
     provider.completeInit(
-        scrollController, authProvider.hospitalDataFetched!.id!, 20);
+       scrollController:  scrollController,hospitalId:  authProvider.hospitalDataFetched!.id!,);
     super.initState();
   }
 

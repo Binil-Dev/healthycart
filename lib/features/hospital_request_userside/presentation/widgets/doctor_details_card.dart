@@ -31,14 +31,25 @@ class DoctorRoundImageNameWidget extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                '$doctorName -$doctorQualification',
-                overflow: TextOverflow.ellipsis,
-                maxLines: 2,
-                style: Theme.of(context)
-                    .textTheme
-                    .labelLarge!
-                    .copyWith(fontWeight: FontWeight.w900),
+              RichText(
+                textAlign: TextAlign.center,
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                        text: doctorName,
+                        style: Theme.of(context)
+                            .textTheme
+                            .labelLarge!
+                            .copyWith(fontWeight: FontWeight.w900)),
+                    TextSpan(
+                      text: ' - $doctorQualification',
+                      style: Theme.of(context).textTheme.labelMedium!.copyWith(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                          ),
+                    ),
+                  ],
+                ),
               ),
               Text(
                 '($doctorSpecialization)',

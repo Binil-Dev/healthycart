@@ -20,7 +20,7 @@ class RequestScreen extends StatelessWidget {
             const CustomSliverCurveAppBarWidget(),
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.symmetric(vertical: 8),
                 child: ButtonsTabBar(
                     unselectedLabelStyle: const TextStyle(
                         color: BColors.darkblue,

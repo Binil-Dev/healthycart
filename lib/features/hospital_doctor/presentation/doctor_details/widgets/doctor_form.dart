@@ -217,6 +217,7 @@ class DoctorAddForm extends StatelessWidget {
                                             keyboardType: TextInputType.number,
                                             textInputAction:
                                                 TextInputAction.next,
+                                              prefixText: "₹",    
                                             hintText:
                                                 'Enter the amount in rupees eg: 250 ',
                                             validator: BValidator.validate,

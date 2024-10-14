@@ -113,12 +113,22 @@ class _AddDoctorScreenState extends State<AddDoctorScreen> {
 
                             return;
                           }
-                          if (doctorProvider.timeSlotListElementList!.isEmpty ||
-                              doctorProvider.availableTotalTime == null) {
-                            CustomToast.errorToast(
-                                text: 'No available time slot is added');
-                            return;
-                          }
+                            if (doctorProvider.availableTotalTimeSlot1 ==
+                                        null ||
+                                    doctorProvider.availableTotalTimeSlot2 ==
+                                        null) {
+                                  CustomToast.errorToast(
+                                      text:
+                                          'No total available time slot is added');
+                                  return;
+                                }
+                                if (doctorProvider
+                                    .timeSlotListElementList!.isEmpty) {
+                                  CustomToast.errorToast(
+                                      text: 'No available time slot is added');
+                                  return;
+                                }
+                
                           if (!doctorProvider.formKey.currentState!
                               .validate()) {
                             doctorProvider.formKey.currentState!.validate();

@@ -121,7 +121,7 @@ class ProfileScreen extends StatelessWidget {
                         text: 'Contact Us',
                         sideChild: Padding(
                           padding: EdgeInsets.all(8.0),
-                          child: Icon(Icons.call),
+                          child: Icon(Icons.arrow_forward_ios),
                         )),
                   ),
                   const Gap(4),

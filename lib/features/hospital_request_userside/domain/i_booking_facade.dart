@@ -6,8 +6,11 @@ import 'package:healthycart/features/hospital_request_userside/domain/models/day
 import 'package:healthycart/features/hospital_request_userside/domain/models/hospital_transaction_model.dart';
 
 abstract class IBookingFacade {
-  Stream<Either<MainFailure, List<HospitalBookingModel>>> getNewRequestStream(
-      {required String hospitalId});
+  Stream<Either<MainFailure, List<HospitalBookingModel>>> getNewRequestStream({
+    required String hospitalId,
+    required String? searchPhoneNumber,
+  });
+       Future<void> cancelNewRequestStream();
   FutureResult<String> setNewTimeSlot(
       {required String bookingId,
       required String newDate,
@@ -15,6 +18,7 @@ abstract class IBookingFacade {
   FutureResult<String> updateOrderStatus({
     required String orderId,
     required int orderStatus,
+    required int? tokenNumber,
     String? dayTransactionDate,
     String? paymentMode,
     DayTransactionModel? dayTransactionModel,
@@ -28,14 +32,20 @@ abstract class IBookingFacade {
   Stream<Either<MainFailure, List<HospitalBookingModel>>>
       getAcceptedBookingsStream({
     required String hospitalId,
+    required String? searchPhoneNumber,
   });
+    Future<void> cancelAcceptedBookingsStream();
+
   FutureResult<List<HospitalBookingModel>> getCompletedBookings(
-      {required String hospitalId, required int limit});
+      {required String hospitalId, required String? searchPhoneNumber,});
   void clearDataCompleted();
-  FutureResult<List<HospitalBookingModel>> getRejectedOrders(
-      {required String hospitalId});
+  FutureResult<List<HospitalBookingModel>> getRejectedOrders({
+    required String hospitalId,
+    required String? searchPhoneNumber,
+  });
   void clearDataRejected();
   FutureResult<String> updatePaymentStatus({required String orderId});
-  FutureResult<HospitalTransactionModel> getTransactionData(
-      {required String hospitalId});
+  FutureResult<HospitalTransactionModel> getTransactionData({
+    required String hospitalId,
+  });
 }

@@ -39,9 +39,12 @@ class DateAndTimePick extends StatelessWidget {
                 child: TextField(
                   onTap: () async {
                     final DateTime? date = await showDatePicker(
-                        context: context,
-                        firstDate: DateTime.now(),
-                        lastDate: DateTime.now().add(const Duration(days: 60)));
+                      context: context,
+                      firstDate: DateTime.now(),
+                      lastDate: DateTime.now().add(
+                        const Duration(days: 60),
+                      ),
+                    );
                     final formattedDate =
                         DateFormat('dd/MM/yyyy').format(date!);
                     bookingProvider.dateController.text = formattedDate;

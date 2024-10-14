@@ -11,7 +11,7 @@ class SearchTextFieldButton extends StatelessWidget {
     this.onChanged,
     this.onSubmit,
     this.searchIcon,
-    required this.controller,
+    required this.controller, this.keyboardType,
   });
   final String text;
   final VoidCallback? onTap;
@@ -19,6 +19,7 @@ class SearchTextFieldButton extends StatelessWidget {
   final void Function(String)? onSubmit;
   final TextEditingController controller;
   final bool? searchIcon;
+  final TextInputType? keyboardType;
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -34,6 +35,8 @@ class SearchTextFieldButton extends StatelessWidget {
                   onChanged: onChanged,
                   onSubmit: onSubmit,
                   hintText: text,
+                  textInputAction: TextInputAction.search,
+                  keyboardType: keyboardType,
                   style: Theme.of(context).textTheme.labelLarge!),
             ),
           ),

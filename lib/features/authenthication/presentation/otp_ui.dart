@@ -122,7 +122,8 @@ class _OTPScreenState extends State<OTPScreen> {
                                 ),
                               ],
                             ),
-                          )),
+                          ),
+                          ),
                       const Gap(40),
                       PinputWidget(
                           onSubmitted: (_) {}, controller: otpController),

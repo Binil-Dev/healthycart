@@ -31,6 +31,7 @@ class RejectionReasonPopup extends StatelessWidget {
           child: TextFormField(
             validator: BValidator.validate,
             controller: reasonController,
+            maxLines: 5,
             decoration: InputDecoration(
               hintText: 'Enter reason for rejection',
               hintStyle: const TextStyle(fontSize: 14),

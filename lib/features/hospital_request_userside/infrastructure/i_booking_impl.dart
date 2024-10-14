@@ -15,29 +15,33 @@ import 'package:injectable/injectable.dart';
 @LazySingleton(as: IBookingFacade)
 class IBookingImpl implements IBookingFacade {
   IBookingImpl(this._firestore);
-  FirebaseFirestore _firestore;
+  final FirebaseFirestore _firestore;
 
 /* -------------------- GET HOSPITAL NEW REQUESTS STREWA -------------------- */
   StreamController<Either<MainFailure, List<HospitalBookingModel>>>
       newRequestStreamController = StreamController<
           Either<MainFailure, List<HospitalBookingModel>>>.broadcast();
-  StreamSubscription? newRequestSubscription;
+  late StreamSubscription newRequestSubscription;
 
   @override
   Stream<Either<MainFailure, List<HospitalBookingModel>>> getNewRequestStream(
-      {required String hospitalId}) async* {
+      {required String hospitalId, required String? searchPhoneNumber}) async* {
     try {
-      newRequestSubscription = _firestore
+      Query query = _firestore
           .collection(FirebaseCollections.hospitalBooking)
-          .where(Filter.and(Filter('hospitalId', isEqualTo: hospitalId),
-              Filter('orderStatus', isEqualTo: 0)))
           .orderBy('bookedAt', descending: true)
-          .snapshots()
-          .listen(
+          .where(Filter.and(Filter('hospitalId', isEqualTo: hospitalId),
+              Filter('orderStatus', isEqualTo: 0)));
+      if (searchPhoneNumber != null && searchPhoneNumber.isNotEmpty) {
+       query = query.where('userDetails.phoneNo', isEqualTo: searchPhoneNumber);
+      }
+
+      newRequestSubscription = query.snapshots().listen(
         (snapshot) {
           newRequestStreamController.add(right(snapshot.docs
               .map((e) =>
-                  HospitalBookingModel.fromMap(e.data()).copyWith(id: e.id))
+                  HospitalBookingModel.fromMap(e.data() as Map<String, dynamic>)
+                      .copyWith(id: e.id))
               .toList()));
         },
       );
@@ -47,7 +51,10 @@ class IBookingImpl implements IBookingFacade {
     }
     yield* newRequestStreamController.stream;
   }
-
+  @override
+   Future<void> cancelNewRequestStream() async {
+    await newRequestSubscription.cancel();
+  }
   @override
   FutureResult<String> setNewTimeSlot(
       {required String bookingId,
@@ -68,22 +75,27 @@ class IBookingImpl implements IBookingFacade {
   StreamController<Either<MainFailure, List<HospitalBookingModel>>>
       acceptedStreamController = StreamController<
           Either<MainFailure, List<HospitalBookingModel>>>.broadcast();
-  StreamSubscription? acceptedSubscription;
+ late StreamSubscription acceptedSubscription;
   @override
   Stream<Either<MainFailure, List<HospitalBookingModel>>>
-      getAcceptedBookingsStream({required String hospitalId}) async* {
+      getAcceptedBookingsStream(
+           {required String hospitalId, required String? searchPhoneNumber}) async* {
     try {
-      acceptedSubscription = _firestore
+      Query query = _firestore
           .collection(FirebaseCollections.hospitalBooking)
-          .where(Filter.and(Filter('hospitalId', isEqualTo: hospitalId),
-              Filter('orderStatus', isEqualTo: 1)))
           .orderBy('acceptedAt', descending: true)
+          .where(Filter.and(Filter('hospitalId', isEqualTo: hospitalId),
+              Filter('orderStatus', isEqualTo: 1)));
+      if (searchPhoneNumber != null && searchPhoneNumber.isNotEmpty) {
+       query = query.where('userDetails.phoneNo', isEqualTo: searchPhoneNumber);
+      }
+      acceptedSubscription = query
           .snapshots()
           .listen(
         (snapshots) {
           acceptedStreamController.add(right(snapshots.docs
               .map((e) =>
-                  HospitalBookingModel.fromMap(e.data()).copyWith(id: e.id))
+                  HospitalBookingModel.fromMap(e.data() as Map<String,dynamic>).copyWith(id: e.id))
               .toList()));
         },
       );
@@ -93,21 +105,27 @@ class IBookingImpl implements IBookingFacade {
     }
     yield* acceptedStreamController.stream;
   }
+   @override
+   Future<void> cancelAcceptedBookingsStream() async {
+    await acceptedSubscription.cancel();
+  }
 
   /* --------------------------- UPDATE ORDER STATUS -------------------------- */
 
   @override
-  FutureResult<String> updateOrderStatus(
-      {required String orderId,
-      required int orderStatus,
-      String? hospitalId,
-      DayTransactionModel? dayTransactionModel,
-      num? totalAmount,
-      String? paymentMode,
-      String? dayTransactionDate,
-      String? rejectReason,
-      num? commission,
-      num? commissionAmt}) async {
+  FutureResult<String> updateOrderStatus({
+    required String orderId,
+    required int orderStatus,
+    required int? tokenNumber,
+    String? hospitalId,
+    DayTransactionModel? dayTransactionModel,
+    num? totalAmount,
+    String? paymentMode,
+    String? dayTransactionDate,
+    String? rejectReason,
+    num? commission,
+    num? commissionAmt,
+  }) async {
     try {
       /* ------------------------------- ACCEPT ORDER ------------------------------ */
       if (orderStatus == 1) {
@@ -117,6 +135,7 @@ class IBookingImpl implements IBookingFacade {
             .update({
           'orderStatus': 1,
           'acceptedAt': Timestamp.now(),
+          'tokenNumber': tokenNumber,
         });
         return right('Booking Accepted successfully');
       } else if (orderStatus == 2) {
@@ -138,14 +157,17 @@ class IBookingImpl implements IBookingFacade {
         final hospitalDoc = _firestore
             .collection(FirebaseCollections.hospitals)
             .doc(hospitalId);
-        
-            
-             
-        batch.update(
-            bookingDoc, {'orderStatus': 2, 'completedAt': Timestamp.now(),'commission':commission ,'commissionAmt': commissionAmt,});
-        batch.update(transactionDoc,
-            {'totalTransactionAmt': FieldValue.increment(totalAmount!),
-            'totalCommissionPending': FieldValue.increment(commissionAmt!)});
+
+        batch.update(bookingDoc, {
+          'orderStatus': 2,
+          'completedAt': Timestamp.now(),
+          'commission': commission,
+          'commissionAmt': commissionAmt,
+        });
+        batch.update(transactionDoc, {
+          'totalTransactionAmt': FieldValue.increment(totalAmount!),
+          'totalCommissionPending': FieldValue.increment(commissionAmt!)
+        });
 
         if (paymentMode == 'Online') {
           batch.update(transactionDoc,
@@ -198,32 +220,31 @@ class IBookingImpl implements IBookingFacade {
   bool completedNoMoreData = false;
   @override
   FutureResult<List<HospitalBookingModel>> getCompletedBookings(
-      {required int limit, required String hospitalId}) async {
+      {required String hospitalId, required String? searchPhoneNumber,}) async {
     if (completedNoMoreData) return right([]);
-
+     int limit = completedLastDoc == null ? 8 : 4;
     try {
       Query query = _firestore
           .collection(FirebaseCollections.hospitalBooking)
           .where('hospitalId', isEqualTo: hospitalId)
           .where('orderStatus', isEqualTo: 2)
           .orderBy('completedAt', descending: true);
-
+  if (searchPhoneNumber != null && searchPhoneNumber.isNotEmpty) {
+      query = query.where('userDetails.phoneNo', isEqualTo: searchPhoneNumber);
+      }
       if (completedLastDoc != null) {
         query = query.startAfterDocument(completedLastDoc!);
       }
       final snapshot = await query.limit(limit).get();
+
       if (snapshot.docs.length < limit || snapshot.docs.isEmpty) {
         completedNoMoreData = true;
       } else {
-        completedLastDoc =
-            snapshot.docs.last as DocumentSnapshot<Map<String, dynamic>>;
+        completedLastDoc = snapshot.docs.last as DocumentSnapshot<Map<String, dynamic>>;
       }
 
-      return right(snapshot.docs
-          .map((e) =>
-              HospitalBookingModel.fromMap(e.data() as Map<String, dynamic>)
-                  .copyWith(id: e.id))
-          .toList());
+      return right(snapshot.docs.map((e) =>
+              HospitalBookingModel.fromMap(e.data() as Map<String, dynamic>).copyWith(id: e.id)).toList());
     } catch (e) {
       return left(MainFailure.generalException(errMsg: e.toString()));
     }
@@ -241,7 +262,7 @@ class IBookingImpl implements IBookingFacade {
 
   @override
   FutureResult<List<HospitalBookingModel>> getRejectedOrders(
-      {required String hospitalId}) async {
+      {required String hospitalId,required String? searchPhoneNumber,}) async {
     if (cancelledNoMoreData) return right([]);
     int limit = cancelledLastDoc == null ? 8 : 4;
     try {
@@ -250,6 +271,9 @@ class IBookingImpl implements IBookingFacade {
           .where('hospitalId', isEqualTo: hospitalId)
           .where('orderStatus', isEqualTo: 3)
           .orderBy('rejectedAt', descending: true);
+      if (searchPhoneNumber != null && searchPhoneNumber.isNotEmpty) {
+   query = query.where('userDetails.phoneNo', isEqualTo: searchPhoneNumber);
+      }  
 
       if (cancelledLastDoc != null) {
         query = query.startAfterDocument(cancelledLastDoc!);
@@ -292,6 +316,7 @@ class IBookingImpl implements IBookingFacade {
       return left(MainFailure.generalException(errMsg: e.toString()));
     }
   }
+
 /* ------------------------- GET TRANSACTION DETAIL ------------------------- */
   @override
   FutureResult<HospitalTransactionModel> getTransactionData(
